@@ -5,7 +5,6 @@ public class Subject {
 	private String name;
 	private School school;
 
-
 	public String getCd() {
 		return cd;
 	}
