@@ -5,5 +5,6 @@ public class Subject {
 
 	private String code;
 	private int id;
+	private int value;
 
 }
