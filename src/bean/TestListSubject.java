@@ -5,6 +5,7 @@ public class TestListSubject implements Serializable{
 	private int entYear;
 	private String studentNo;
 	private String studentName;
+
 	private String classNum;
 	private Map<Integer,Integer> points;
 	public int getEntYear() {
