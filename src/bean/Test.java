@@ -43,4 +43,5 @@ public class Test implements Serializable{
 	public void setPoint(int point) {
 		this.point = point;
 	}
+
 }
