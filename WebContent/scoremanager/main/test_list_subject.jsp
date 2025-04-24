@@ -8,8 +8,7 @@
 	<c:param name="scripts"></c:param>
 	<c:param name="content">
 		<section class="me=4">
-			<h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">成績参照</h2>
-
+			<h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">成績一覧(科目)</h2>
 
             <form method="get">
 				<div class="row border mx-3 mb-3 py-2 align-items-center rounded" id="filter">
@@ -78,10 +77,31 @@
                     <div class="mt-2 text-warning">${errors.get("f1")}</div>
 				</div>
 			</form>
-				<p style="color: #00bfff; font-size: 0.9rem;">
-				    科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
-				</p>
 
+<div>科目: ${subjects.size()}</div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>入学年度</th>
+                        <th>クラス</th>
+                        <th>学生番号</th>
+                        <th>氏名</th>
+                        <th>1回</th>
+                        <th>2回</th>
+                    </tr>
+                </thead>
+                						<c:forEach var="student" items="${students}">
+							<tr>
+								<td>${student.entYear}</td>
+								<td>${student.classNum}</td>
+								<td>${student.no}</td>
+								<td>${student.name}</td>
+								<td>${student.session1}</td>
+								<td>${student.session2}</td>
+							</tr>
+						</c:forEach>
+            </table>
 		</section>
 	</c:param>
 </c:import>
