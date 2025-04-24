@@ -25,6 +25,7 @@ public class SubjectCreateExecuteAction extends Action {
         // 教師の所属学校を取得
         School school = teacher.getSchool();
 
+
         // フォームから送信されたデータを取得
         String cd = req.getParameter("f1");     // 科目コード
         String name = req.getParameter("f2");   // 科目名

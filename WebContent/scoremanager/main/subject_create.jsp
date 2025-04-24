@@ -10,6 +10,7 @@
         <section class="me-4">
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">科目情報登録</h2>
 
+
             <!-- 科目作成のアクションに向けたフォーム -->
             <form action="SubjectCreateExecute.action" method="get">
                 <div class="mx-3 mb-3 py-2 rounded" id="registrationForm">

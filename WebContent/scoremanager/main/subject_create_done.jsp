@@ -5,6 +5,7 @@
     <c:param name="title">科目管理システム - 登録完了</c:param>
     <c:param name="scripts"></c:param>
 
+
     <c:param name="content">
         <section class="me-4">
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">科目情報登録</h2>

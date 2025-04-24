@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import bean.Teacher;
 import tool.Action;
 
+
 /**
  * 科目登録画面（subject_create.jsp）を表示するためのアクション。
  * ログイン中の教員情報を利用して、科目登録画面に遷移する。
