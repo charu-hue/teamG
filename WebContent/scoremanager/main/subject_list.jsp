@@ -12,7 +12,7 @@
                 <a href="SubjectCreate.action" class="btn btn-primary">新規登録</a>
             </div>
 
-            <div>検索結果：${subjects.size()}件</div>
+            <div>検索結果 ${subjects.size()}件</div>
             <table class="table table-hover">
                 <thead>
                     <tr>
