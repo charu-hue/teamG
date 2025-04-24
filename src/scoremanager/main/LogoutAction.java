@@ -32,6 +32,7 @@ public class LogoutAction extends Action {
 		// ログアウト完了ページ（logout.jsp）に遷移するようにURLを設定
 		url = "logout.jsp";
 
+
 		// 設定されたURLに画面遷移（フォワード）を実行
 		// フォワードとは、サーバー内部で別のページに処理を渡す仕組みです（リダイレクトではない）
 		req.getRequestDispatcher(url).forward(req, res);
