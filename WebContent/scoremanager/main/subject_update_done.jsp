@@ -12,7 +12,6 @@
         <div class="alert alert-success" role="alert">
             更新が完了しました。
 </div>
-
         <div>
 <button class="btn btn-secondary" onclick="history.back()">戻る</button>
 <a href="SubjectList.action" class="btn btn-primary ms-2">科目一覧</a>

@@ -15,7 +15,6 @@
     <label class="form-label" for="subject-f1-input">科目コード</label>
 <input type="text" class=" form-control" placeholder="科目コードを入力してください" name="f3" required value="${name }">
 </div>
-
 <p></p>
 
 <p></p>
