@@ -1,6 +1,3 @@
-
-
-
 package scoremanager.main;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,21 +10,33 @@ import bean.Teacher;
 import dao.StudentDao;
 import tool.Action;
 
+/**
+ * 学生登録処理を実行するアクションクラス。
+ * フォームから送信された学生情報をデータベースに保存し、完了画面に遷移する。
+ */
 public class StudentCreateExecuteAction extends Action {
-	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception{
-		HttpSession session = req.getSession();//セッション
+
+	@Override
+	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+		// セッションからログイン中の教師情報を取得
+		HttpSession session = req.getSession();
 		Teacher teacher = (Teacher)session.getAttribute("user");
 
+		// 学生データアクセス用DAOを初期化
 		StudentDao sDao = new StudentDao();
 
-		int entYear = Integer.parseInt(req.getParameter("f1"));
-		String no = req.getParameter("f2");
-		String name = req.getParameter("f3");
-		String classNum = req.getParameter("f4");
-		boolean isAttend = true;
-		School school = teacher.getSchool();
+		// リクエストパラメータ（フォーム入力値）から学生情報を取得
+		int entYear = Integer.parseInt(req.getParameter("f1")); // 入学年度
+		String no = req.getParameter("f2");                     // 学生番号
+		String name = req.getParameter("f3");                   // 氏名
+		String classNum = req.getParameter("f4");               // クラス番号
+		boolean isAttend = true;                                // 登録時は在学中に固定
+		School school = teacher.getSchool();                    // 教師の所属学校を取得
 
-		System.out.println(no+name+classNum);
+		// デバッグ用出力（後で削除してもOK）
+		System.out.println(no + name + classNum);
+
+		// 学生オブジェクトを生成し、各プロパティに値を設定
 		Student stu = new Student();
 		stu.setNo(no);
 		stu.setName(name);
@@ -36,12 +45,13 @@ public class StudentCreateExecuteAction extends Action {
 		stu.setAttend(isAttend);
 		stu.setSchool(school);
 
+		// 学生情報をデータベースに保存
 		boolean save = sDao.save(stu);
 
-		req.setAttribute("class_num", save);
+		// 保存結果をリクエストスコープに格納（確認画面などで使用可能）
+		req.setAttribute("class_num", save); // ★保存成功の可否を返す変数名としては若干わかりにくいかも？
 
+		// 登録完了画面に遷移
 		req.getRequestDispatcher("student_create_done.jsp").forward(req, res);
-
-
 	}
 }
