@@ -66,6 +66,33 @@
 				</div>
 			</form>
 
+<div>科目: ${subjects.size()}</div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>入学年度</th>
+                        <th>クラス</th>
+                        <th>学生番号</th>
+                        <th>氏名</th>
+                        <th>点数</th>
+                    </tr>
+                </thead>
+                						<c:forEach var="student" items="${students}">
+							<tr>
+								<td>${student.entYear}</td>
+								<td>${student.classNum}</td>
+								<td>${student.no}</td>
+								<td>${student.name}</td>
+								<td> <input type = "number" name = "score_${student.studentID}" value = "${student.score}" />
+								<td class="text-center">
+								</td>
+							</tr>
+						</c:forEach>
+            </table>
+<div class="mb-3 text-left">
+<button class="btn btn-secondary" id="filter-button">登録して終了</button>
+</div>
 		</section>
 	</c:param>
 </c:import>
