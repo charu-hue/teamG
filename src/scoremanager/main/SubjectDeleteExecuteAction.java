@@ -1,39 +1,3 @@
-//package scoremanager.main;
-//
-//import javax.servlet.RequestDispatcher;
-//import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.http.HttpServletResponse;
-//
-//import bean.School;
-//import bean.Subject;
-//import dao.SubjectDao;
-//import tool.Action;
-//
-//public class SubjectDeleteExecuteAction extends Action {
-//
-//    @Override
-//    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
-//        // ログイン中の学校情報
-//        School school = (School) req.getSession().getAttribute("school");
-//
-//        // フォームから渡された科目コード
-//        String cd = req.getParameter("cd");
-//
-//        if (cd != null && !cd.isEmpty() && school != null) {
-//            Subject subject = new Subject();
-//            subject.setCd(cd);
-//            subject.setSchool(school);
-//
-//            SubjectDao dao = new SubjectDao();
-//            dao.delete(subject);  // 削除処理
-//        }
-//
-//        // 完了画面へ
-//        RequestDispatcher dispatcher = req.getRequestDispatcher("subject_delete_done.jsp");
-//        dispatcher.forward(req, res);
-//    }
-//}
-
 package scoremanager.main;
 
 import javax.servlet.http.HttpServletRequest;
