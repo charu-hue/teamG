@@ -14,8 +14,7 @@
                     <div class="mb-3">
                         <label class="form-label" for="subject-f1-input">科目コード</label>
                         <input type="text" class="form-control" id="subject-f1-input"
-                               name="f1" placeholder="科目コードを入力してください" required
-                               value="${subject.cd}">
+                               name="f1" value="${f1}" readonly>
                     </div>
 
                     <div class="mb-3">

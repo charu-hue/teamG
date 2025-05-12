@@ -84,7 +84,7 @@
 									</c:choose>
 								</td>
 								<td>
-								<a href="StudentUpdate.action?no=${student.no}">変更</a>
+								<a href="StudentUpdate.action?f2=${student.no}">変更</a>
 								</td>
 							</tr>
 						</c:forEach>

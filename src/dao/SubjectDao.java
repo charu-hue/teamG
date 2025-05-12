@@ -83,6 +83,11 @@ public class SubjectDao extends Dao {
         }
         return list;
     }
+ // 学校に属するすべての科目を取得（エイリアス）
+    public List<Subject> getAll(School school) throws Exception {
+        return filter(school);
+    }
+
 
     public boolean save(Subject subject) throws Exception {
         Connection connection = getConnection();

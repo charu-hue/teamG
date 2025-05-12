@@ -34,6 +34,7 @@ public class StudentUpdateAction extends Action {
             // 学生番号から学生情報を取得
             Student student = sDao.get(no);
 
+
             // 学生情報が存在する場合、リクエスト属性に情報を設定
             if (student != null) {
                 req.setAttribute("f1", student.getEntYear());     // 入学年度
@@ -50,6 +51,7 @@ public class StudentUpdateAction extends Action {
 
         // クラス選択肢をリクエストに設定
         req.setAttribute("class_num_set", classList);
+
 
         // 学生変更画面へフォワード（student_update.jsp）
         req.getRequestDispatcher("student_update.jsp").forward(req, res);

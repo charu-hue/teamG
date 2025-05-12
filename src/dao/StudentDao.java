@@ -180,6 +180,60 @@ public class StudentDao extends Dao{
 		}
 		return list;
 	}
+	// 学校に属する入学年度一覧（重複除外・降順）
+	public List<Integer> getEntYearList(School school) throws Exception {
+	    List<Integer> list = new ArrayList<>();
+	    Connection connection = getConnection();
+	    PreparedStatement statement = null;
+	    ResultSet rSet = null;
+
+	    try {
+	        String sql = "SELECT DISTINCT ent_year FROM student WHERE school_cd = ? ORDER BY ent_year DESC";
+	        statement = connection.prepareStatement(sql);
+	        statement.setString(1, school.getCd());
+	        rSet = statement.executeQuery();
+
+	        while (rSet.next()) {
+	            list.add(rSet.getInt("ent_year"));
+	        }
+	    } catch (Exception e) {
+	        throw e;
+	    } finally {
+	        if (rSet != null) try { rSet.close(); } catch (SQLException e) { throw e; }
+	        if (statement != null) try { statement.close(); } catch (SQLException e) { throw e; }
+	        if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+	    }
+
+	    return list;
+	}
+
+	// 学校に属するクラス番号一覧（重複除外・昇順）
+	public List<String> getClassNumList(School school) throws Exception {
+	    List<String> list = new ArrayList<>();
+	    Connection connection = getConnection();
+	    PreparedStatement statement = null;
+	    ResultSet rSet = null;
+
+	    try {
+	        String sql = "SELECT DISTINCT class_num FROM student WHERE school_cd = ? ORDER BY class_num";
+	        statement = connection.prepareStatement(sql);
+	        statement.setString(1, school.getCd());
+	        rSet = statement.executeQuery();
+
+	        while (rSet.next()) {
+	            list.add(rSet.getString("class_num"));
+	        }
+	    } catch (Exception e) {
+	        throw e;
+	    } finally {
+	        if (rSet != null) try { rSet.close(); } catch (SQLException e) { throw e; }
+	        if (statement != null) try { statement.close(); } catch (SQLException e) { throw e; }
+	        if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+	    }
+
+	    return list;
+	}
+
 	public boolean save(Student student) throws Exception{
 		Connection connection=getConnection();
 		PreparedStatement statement=null;

@@ -12,15 +12,15 @@
 <form action="StudentUpdateExecute.action" method="get">
 <div class="mx-3 mb-3 py-2 rounded" id="registrationForm">
 <div class="mb-3">
-    <label class="form-label" for="student-f1-input">入学年度</label>
-    <input type="text" class="form-control" id="student-f1-input" name="f1"
-           value="${f1}" readonly>
+    <label class="form-label" for="f1">入学年度</label>
+<input type="text" class="form-control" id="student-f1-input" value="${f1}" readonly>
+<input type="hidden" name="f1" value="${f1}">
 </div>
 
 <p></p>
 <div class="mb-3">
 <label class="form-label" for="student-f2-select">学生番号</label>
-<input type="text" class=" form-control" placeholder="学生番号を入力してください" name="f2" required value="${no }">
+<input type="text" class=" form-control" placeholder="学生番号を入力してください" name="f2" required value="${f2}" readonly>
 </div>
 <p></p>
 <div class="mb-3">
