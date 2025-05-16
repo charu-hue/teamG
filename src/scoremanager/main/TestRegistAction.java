@@ -83,6 +83,7 @@ public class TestRegistAction extends Action {
             req.setAttribute("no", no);
         }
 
+
         req.getRequestDispatcher("test_regist.jsp").forward(req, res);
     }
 }

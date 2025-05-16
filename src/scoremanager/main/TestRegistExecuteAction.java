@@ -31,6 +31,7 @@ public class TestRegistExecuteAction extends Action {
             String subjectCd = req.getParameter("subjectCd");
             int no = Integer.parseInt(req.getParameter("no"));
 
+
             String[] studentNos = req.getParameterValues("studentNoList");
             String[] points = req.getParameterValues("pointList");
 

@@ -58,6 +58,7 @@ public class TestListStudentExecuteAction extends Action {
 
             req.getRequestDispatcher("test_list_student.jsp").forward(req, res);
 
+
         } catch (Exception e) {
             e.printStackTrace();
             req.setAttribute("error", "学生別成績検索中にエラーが発生しました。");

@@ -29,6 +29,7 @@ public class TestListSubjectExecuteAction extends Action {
             Teacher teacher = (Teacher) session.getAttribute("user");
             School school = teacher.getSchool();
 
+
             String f1 = req.getParameter("f1"); // 年度
             String f2 = req.getParameter("f2"); // クラス
             String f3 = req.getParameter("f3"); // 科目名
