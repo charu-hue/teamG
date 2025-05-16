@@ -7,9 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -21,17 +18,17 @@ import bean.Test;
 import bean.TestListSubject;
 import dao.SubjectDao;
 import dao.TestDao;
+import tool.Action;
 
-public class TestListSubjectExecuteAction extends HttpServlet {
+public class TestListSubjectExecuteAction extends Action {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    public void execute(HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
             HttpSession session = req.getSession();
             Teacher teacher = (Teacher) session.getAttribute("user");
             School school = teacher.getSchool();
 
-            // パラメータ取得とバリデーション
             String f1 = req.getParameter("f1"); // 年度
             String f2 = req.getParameter("f2"); // クラス
             String f3 = req.getParameter("f3"); // 科目名
@@ -41,7 +38,7 @@ public class TestListSubjectExecuteAction extends HttpServlet {
 
             if (f1 == null || f2 == null || f3 == null || f1.equals("0") || f2.equals("0") || f3.equals("0")) {
                 req.setAttribute("error", "入学年度とクラスと科目を選択してください。");
-                forward(req, res);
+                req.getRequestDispatcher("test_list_subject.jsp").forward(req, res);
                 return;
             }
 
@@ -58,36 +55,32 @@ public class TestListSubjectExecuteAction extends HttpServlet {
 
             if (subject == null) {
                 req.setAttribute("message", "指定された科目が見つかりませんでした。");
-                forward(req, res);
+                req.getRequestDispatcher("test_list_subject.jsp").forward(req, res);
                 return;
             }
 
-            // 成績取得（複数回のテストを想定）
             TestDao testDao = new TestDao();
             List<Test> allTests = new ArrayList<>();
-            int[] testNums = {1, 2, 3}; // 想定されるテスト回数（必要に応じて調整）
+            int[] testNums = {1, 2, 3}; // 回数は適宜調整
 
             for (int num : testNums) {
-                List<Test> partialTests = testDao.filter(entYear, classNum, subject, num, school);
-                allTests.addAll(partialTests);
+                allTests.addAll(testDao.filter(entYear, classNum, subject, num, school));
             }
 
             if (allTests.isEmpty()) {
-                req.setAttribute("message", "学生情報が存在しませんでした");
-                forward(req, res);
+                req.setAttribute("message", "学生情報が存在しませんでした。");
+                req.getRequestDispatcher("test_list_subject.jsp").forward(req, res);
                 return;
             }
 
-            // 学生ごとにTestListSubjectへ変換
             Map<String, TestListSubject> map = new LinkedHashMap<>();
-
             for (Test test : allTests) {
                 String studentNo = test.getStudent().getNo();
                 TestListSubject tls = map.getOrDefault(studentNo, new TestListSubject());
-
                 tls.setEntYear(entYear);
                 tls.setStudentNo(studentNo);
                 tls.setClassNum(classNum);
+                tls.setStudentName(test.getStudent().getName());
 
                 if (tls.getPoints() == null) {
                     tls.setPoints(new HashMap<>());
@@ -97,17 +90,17 @@ public class TestListSubjectExecuteAction extends HttpServlet {
                 map.put(studentNo, tls);
             }
 
-            req.setAttribute("list", new ArrayList<>(map.values()));
-            forward(req, res);
+            req.setAttribute("students", new ArrayList<>(map.values()));
+            req.getRequestDispatcher("test_list_subject.jsp").forward(req, res);
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ServletException("成績情報取得時にエラーが発生しました", e);
+            req.setAttribute("error", "成績情報取得時にエラーが発生しました");
+            try {
+                req.getRequestDispatcher("error.jsp").forward(req, res);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
-    }
-
-    private void forward(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        RequestDispatcher dispatcher = req.getRequestDispatcher("test_list_subject.jsp");
-        dispatcher.forward(req, res);
     }
 }

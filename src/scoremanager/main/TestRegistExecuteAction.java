@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,8 +16,11 @@ import bean.Subject;
 import bean.Teacher;
 import bean.Test;
 import dao.TestDao;
+import tool.Action;
 
-public class TestRegistExecuteAction extends HttpServlet {
+public class TestRegistExecuteAction extends Action {
+
+    @Override
     public void execute(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         try {
             req.setCharacterEncoding("UTF-8");
@@ -29,34 +31,32 @@ public class TestRegistExecuteAction extends HttpServlet {
             String subjectCd = req.getParameter("subjectCd");
             int no = Integer.parseInt(req.getParameter("no"));
 
-            String[] studentNos = req.getParameterValues("studentNo");
-            String[] points = req.getParameterValues("point");
+            String[] studentNos = req.getParameterValues("studentNoList");
+            String[] points = req.getParameterValues("pointList");
 
-            // ② セッションから教師の学校情報を取得
+            // ② 教師・学校情報取得
             Teacher teacher = (Teacher) req.getSession().getAttribute("user");
             School school = teacher.getSchool();
 
-            // ③ 科目インスタンス作成
+            // ③ 科目設定
             Subject subject = new Subject();
             subject.setCd(subjectCd);
             subject.setSchool(school);
 
-            // ④ 入力バリデーションとオブジェクト生成
             List<Test> testList = new ArrayList<>();
             Map<String, String> errorMessages = new HashMap<>();
 
             for (int i = 0; i < studentNos.length; i++) {
                 String studentNo = studentNos[i];
                 String pointStr = points[i];
-                Test test = new Test();
 
-                // 学生・基本情報設定
                 Student student = new Student();
                 student.setNo(studentNo);
                 student.setEntYear(entYear);
                 student.setClassNum(classNum);
                 student.setSchool(school);
 
+                Test test = new Test();
                 test.setStudent(student);
                 test.setClassNum(classNum);
                 test.setSubject(subject);
@@ -64,11 +64,15 @@ public class TestRegistExecuteAction extends HttpServlet {
                 test.setNo(no);
 
                 try {
-                    int point = Integer.parseInt(pointStr);
-                    if (point < 0 || point > 100) {
-                        errorMessages.put(studentNo, "0～100の範囲で入力してください");
+                    if (pointStr != null && !pointStr.trim().isEmpty()) {
+                        int point = Integer.parseInt(pointStr);
+                        if (point < 0 || point > 100) {
+                            errorMessages.put(studentNo, "0～100の範囲で入力してください");
+                        } else {
+                            test.setPoint(point);
+                        }
                     } else {
-                        test.setPoint(point);
+                        errorMessages.put(studentNo, "点数を入力してください");
                     }
                 } catch (NumberFormatException e) {
                     errorMessages.put(studentNo, "数値を入力してください");
@@ -77,7 +81,7 @@ public class TestRegistExecuteAction extends HttpServlet {
                 testList.add(test);
             }
 
-            // ⑤ エラーがあれば元の画面に戻る
+            // ④ エラーがある場合：元の画面へ戻す
             if (!errorMessages.isEmpty()) {
                 req.setAttribute("testList", testList);
                 req.setAttribute("errorMessages", errorMessages);
@@ -85,26 +89,20 @@ public class TestRegistExecuteAction extends HttpServlet {
                 req.setAttribute("classNum", classNum);
                 req.setAttribute("subjectCd", subjectCd);
                 req.setAttribute("no", no);
-                req.getRequestDispatcher("/view/testRegist.jsp").forward(req, res);
+                req.getRequestDispatcher("test_regist.jsp").forward(req, res);
                 return;
             }
 
-            // ⑥ 正常処理 → 登録実行
-            TestDao dao = new TestDao();
-            dao.save(testList);
+            // ⑤ 成績の保存
+            new TestDao().save(testList);
 
-            // 完了メッセージ
-            req.setAttribute("message", "登録が完了しました");
-            req.setAttribute("entYear", entYear);
-            req.setAttribute("classNum", classNum);
-            req.setAttribute("subjectCd", subjectCd);
-            req.setAttribute("no", no);
-            req.getRequestDispatcher("/TestRegistAction").forward(req, res);
+            // ⑥ 完了ページへ
+            req.getRequestDispatcher("test_regist_done.jsp").forward(req, res);
 
         } catch (Exception e) {
             e.printStackTrace();
             req.setAttribute("error", "登録処理に失敗しました。");
-            req.getRequestDispatcher("/view/error.jsp").forward(req, res);
+            req.getRequestDispatcher("error.jsp").forward(req, res);
         }
     }
 }

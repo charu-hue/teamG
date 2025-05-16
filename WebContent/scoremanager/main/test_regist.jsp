@@ -9,7 +9,7 @@
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">成績管理</h2>
 
             <!-- 検索フォーム -->
-            <form method="get">
+            <form method="get" action="TestRegist.action">
                 <div class="row px-4 mb-3 align-items-end">
                     <div class="col-md-3">
                         <label for="entYear" class="form-label">入学年度</label>
@@ -53,7 +53,7 @@
                 </div>
             </form>
 
-            <!-- 得点登録フォーム（検索後に表示） -->
+            <!-- 得点登録フォーム -->
             <c:if test="${not empty testList}">
                 <form method="post" action="TestRegistExecute.action">
                     <!-- 検索条件保持 -->
@@ -82,11 +82,13 @@
                                     <td>${test.classNum}</td>
                                     <td>
                                         ${test.student.no}
-                                        <input type="hidden" name="studentNo" value="${test.student.no}" />
+                                        <input type="hidden" name="studentNoList" value="${test.student.no}" />
                                     </td>
                                     <td>${test.student.name}</td>
                                     <td>
-                                        <input type="number" name="point" value="${test.point}" class="form-control" />
+                                        <input type="number" name="pointList"
+                                               class="form-control"
+                                               value="${test.point != null ? test.point : ''}" />
                                     </td>
                                     <td class="text-danger">
                                         <c:if test="${not empty errorMessages[test.student.no]}">

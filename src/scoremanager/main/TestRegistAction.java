@@ -1,13 +1,16 @@
 package scoremanager.main;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import bean.School;
+import bean.Student;
 import bean.Subject;
 import bean.Teacher;
 import bean.Test;
@@ -17,64 +20,69 @@ import dao.TestDao;
 import tool.Action;
 
 public class TestRegistAction extends Action {
-    public void execute(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        try {
-            // セッションからログイン中の教師を取得
-            Teacher teacher = (Teacher) req.getSession().getAttribute("user");
-            School school = teacher.getSchool();
+    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+        HttpSession session = req.getSession();
+        Teacher teacher = (Teacher) session.getAttribute("user");
+        School school = teacher.getSchool();
 
-            // 各種マスタデータを取得（入学年度、クラス、科目など）
-            List<Integer> entYearList = new StudentDao().getEntYearList(school);
-            List<String> classNumList = new StudentDao().getClassNumList(school);
-            List<Subject> subjectList = new SubjectDao().getAll(school);
+        StudentDao studentDao = new StudentDao();
+        SubjectDao subjectDao = new SubjectDao();
+        TestDao testDao = new TestDao();
 
-            // リクエストに設定（検索フォーム用）
-            req.setAttribute("entYearList", entYearList);
-            req.setAttribute("classNumList", classNumList);
-            req.setAttribute("subjectList", subjectList);
+        List<Integer> entYearList = studentDao.getEntYearList(school);
+        List<String> classNumList = studentDao.getClassNumList(school);
+        List<Subject> subjectList = subjectDao.getAll(school);
 
-            // 検索条件を受け取ったか確認（初回アクセスかどうか）
-            String entYearStr = req.getParameter("entYear");
-            String classNum = req.getParameter("classNum");
-            String subjectCd = req.getParameter("subject");
-            String noStr = req.getParameter("no");
+        req.setAttribute("entYearList", entYearList);
+        req.setAttribute("classNumList", classNumList);
+        req.setAttribute("subjectList", subjectList);
 
-            if (entYearStr != null && classNum != null && subjectCd != null && noStr != null) {
-                // 検索条件がすべて揃っている場合 → 成績情報を取得して表示
-                int entYear = Integer.parseInt(entYearStr);
-                int no = Integer.parseInt(noStr);
+        String entYearStr = req.getParameter("entYear");
+        String classNum = req.getParameter("classNum");
+        String subjectCd = req.getParameter("subject");
+        String noStr = req.getParameter("no");
 
-                Subject subject = new Subject();
-                subject.setCd(subjectCd);
-                subject.setSchool(school);
+        if (entYearStr != null && classNum != null && subjectCd != null && noStr != null) {
+            int entYear = Integer.parseInt(entYearStr);
+            int no = Integer.parseInt(noStr);
 
-                TestDao dao = new TestDao();
-                List<Test> testList = dao.filter(entYear, classNum, subject, no, school);
+            Subject subject = new Subject();
+            subject.setCd(subjectCd);
+            subject.setSchool(school);
 
-                // 科目名表示用に取得
-                String subjectName = "";
-                for (Subject s : subjectList) {
-                    if (s.getCd().equals(subjectCd)) {
-                        subjectName = s.getName();
-                        break;
-                    }
-                }
+            List<Student> studentList = studentDao.filter(school, entYear, classNum, true);
+            List<Test> existingTests = testDao.filter(entYear, classNum, subject, no, school);
 
-                req.setAttribute("testList", testList);
-                req.setAttribute("subjectName", subjectName);
-                req.setAttribute("entYear", entYear);
-                req.setAttribute("classNum", classNum);
-                req.setAttribute("subjectCd", subjectCd);
-                req.setAttribute("no", no);
+            Map<String, Test> testMap = new HashMap<>();
+            for (Test t : existingTests) {
+                testMap.put(t.getStudent().getNo(), t);
             }
 
-            // 画面遷移
-            req.getRequestDispatcher("test_regist.jsp").forward(req, res);
+            List<Test> testList = new ArrayList<>();
+            for (Student student : studentList) {
+                Test test = testMap.getOrDefault(student.getNo(), new Test());
+                test.setStudent(student);
+                test.setClassNum(student.getClassNum());
+                test.setSubject(subject);
+                test.setSchool(school);
+                test.setNo(no);
+                testList.add(test);
+            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            req.setAttribute("error", "画面の表示に失敗しました。");
-            req.getRequestDispatcher("/error.jsp").forward(req, res);
+            String subjectName = subjectList.stream()
+                .filter(s -> s.getCd().equals(subjectCd))
+                .map(Subject::getName)
+                .findFirst()
+                .orElse("");
+
+            req.setAttribute("testList", testList);
+            req.setAttribute("subjectName", subjectName);
+            req.setAttribute("entYear", entYear);
+            req.setAttribute("classNum", classNum);
+            req.setAttribute("subjectCd", subjectCd);
+            req.setAttribute("no", no);
         }
+
+        req.getRequestDispatcher("test_regist.jsp").forward(req, res);
     }
 }

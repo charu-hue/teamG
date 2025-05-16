@@ -15,37 +15,43 @@ import bean.Test;
 public class TestDao extends Dao {
 
     /**
-     * 得点の検索処理
+     * 成績情報の取得（studentテーブルとJOINし、ent_yearで絞り込み）
      */
-    public List<Test> filter(int entYear, String classNum, Subject subject, int num, School school) throws Exception {
+    public List<Test> filter(int entYear, String classNum, Subject subject, int no, School school) throws Exception {
         List<Test> list = new ArrayList<>();
         Connection connection = getConnection();
         PreparedStatement ps = null;
 
         try {
-            String sql = "SELECT * FROM test WHERE ent_year=? AND class_num=? AND subject_id=? AND no=? AND school_id=?";
+            String sql = "SELECT t.*, s.ent_year, s.name AS student_name " +
+                         "FROM test t " +
+                         "JOIN student s ON t.student_no = s.no AND t.school_cd = s.school_cd " +
+                         "WHERE s.ent_year = ? AND t.class_num = ? AND t.subject_cd = ? AND t.no = ? AND t.school_cd = ? " +
+                         "ORDER BY s.no";
+
             ps = connection.prepareStatement(sql);
             ps.setInt(1, entYear);
             ps.setString(2, classNum);
-            ps.setString(3, subject.getCd());     // ← Subject.cd
-            ps.setInt(4, num);
-            ps.setString(5, school.getCd());      // ← School.cd
+            ps.setString(3, subject.getCd());
+            ps.setInt(4, no);
+            ps.setString(5, school.getCd());
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Test test = new Test();
 
-                // Studentを生成し、基本情報をセット
                 Student student = new Student();
-                student.setNo(rs.getString("student_id")); // フィールド名は student_id を仮定
-                // 必要であれば student.setName(...) や他項目も追加
+                student.setNo(rs.getString("student_no"));
+                student.setEntYear(rs.getInt("ent_year"));
+                student.setName(rs.getString("student_name"));
+                student.setClassNum(rs.getString("class_num"));
+                student.setSchool(school);
 
-                // テスト情報を構成
                 test.setStudent(student);
-                test.setClassNum(classNum);
+                test.setClassNum(rs.getString("class_num"));
                 test.setSubject(subject);
                 test.setSchool(school);
-                test.setNo(num);
+                test.setNo(no);
                 test.setPoint(rs.getInt("point"));
 
                 list.add(test);
@@ -62,48 +68,73 @@ public class TestDao extends Dao {
     }
 
     /**
-     * 得点の保存処理（INSERT or UPDATE）
+     * 成績の保存（H2対応：DELETE→INSERT）
      */
     public boolean save(List<Test> list) throws Exception {
         Connection connection = getConnection();
-        PreparedStatement ps = null;
+        PreparedStatement deleteStmt = null;
+        PreparedStatement insertStmt = null;
 
         try {
-            String sql = "INSERT INTO test (student_id, class_num, subject_id, no, point, ent_year, school_id) "
-                       + "VALUES (?, ?, ?, ?, ?, ?, ?) "
-                       + "ON DUPLICATE KEY UPDATE point = VALUES(point)";
-            ps = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
+
+            String deleteSql = "DELETE FROM test WHERE student_no = ? AND subject_cd = ? AND school_cd = ? AND no = ?";
+            deleteStmt = connection.prepareStatement(deleteSql);
 
             for (Test t : list) {
-                ps.setString(1, t.getStudent().getNo());           // ← Student.no
-                ps.setString(2, t.getClassNum());                  // ← String
-                ps.setString(3, t.getSubject().getCd());           // ← Subject.cd
-                ps.setInt(4, t.getNo());                           // ← 回数
-                ps.setInt(5, t.getPoint());                        // ← 点数
-                ps.setInt(6, t.getStudent().getEntYear());         // ← Student.entYear
-                ps.setString(7, t.getSchool().getCd());            // ← School.cd
+                deleteStmt.setString(1, t.getStudent().getNo());
+                deleteStmt.setString(2, t.getSubject().getCd());
+                deleteStmt.setString(3, t.getSchool().getCd());
+                deleteStmt.setInt(4, t.getNo());
+                deleteStmt.addBatch();
+            }
+            deleteStmt.executeBatch();
 
-                ps.addBatch();
+            String insertSql = "INSERT INTO test (student_no, class_num, subject_cd, no, point, school_cd) " +
+                               "VALUES (?, ?, ?, ?, ?, ?)";
+            insertStmt = connection.prepareStatement(insertSql);
+
+            for (Test t : list) {
+                insertStmt.setString(1, t.getStudent().getNo());
+                insertStmt.setString(2, t.getClassNum());
+                insertStmt.setString(3, t.getSubject().getCd());
+                insertStmt.setInt(4, t.getNo());
+                insertStmt.setInt(5, t.getPoint());
+                insertStmt.setString(6, t.getSchool().getCd());
+                insertStmt.addBatch();
             }
 
-            ps.executeBatch();
+            insertStmt.executeBatch();
+            connection.commit();
             return true;
 
         } catch (Exception e) {
+            if (connection != null) connection.rollback();
             throw e;
         } finally {
-            if (ps != null) try { ps.close(); } catch (SQLException e) { throw e; }
-            if (connection != null) try { connection.close(); } catch (SQLException e) { throw e; }
+            if (deleteStmt != null) try { deleteStmt.close(); } catch (SQLException e) { throw e; }
+            if (insertStmt != null) try { insertStmt.close(); } catch (SQLException e) { throw e; }
+            if (connection != null) try {
+                connection.setAutoCommit(true);
+                connection.close();
+            } catch (SQLException e) { throw e; }
         }
     }
+
+    /**
+     * 学生別の成績情報を取得
+     */
     public List<Test> getByStudent(Student student) throws Exception {
         List<Test> list = new ArrayList<>();
         Connection connection = getConnection();
         PreparedStatement ps = null;
 
         try {
-            String sql = "SELECT t.*, sub.cd AS subject_cd, sub.name AS subject_name  FROM test t JOIN subject sub ON t.subject_id = sub.cd AND t.school_id = sub.school_cd WHERE t.student_id = ? AND t.school_id = ? ORDER BY t.subject_id, t.no";
-
+            String sql = "SELECT t.*, sub.cd AS subject_cd, sub.name AS subject_name " +
+                         "FROM test t " +
+                         "JOIN subject sub ON t.subject_cd = sub.cd AND t.school_cd = sub.school_cd " +
+                         "WHERE t.student_no = ? AND t.school_cd = ? " +
+                         "ORDER BY t.subject_cd, t.no";
 
             ps = connection.prepareStatement(sql);
             ps.setString(1, student.getNo());
@@ -136,5 +167,4 @@ public class TestDao extends Dao {
 
         return list;
     }
-
 }

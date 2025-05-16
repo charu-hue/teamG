@@ -15,7 +15,7 @@
 
         <div>
             <button class="btn btn-secondary" onclick="history.back()">戻る</button>
-            <a href="StudentList.action" class="btn btn-primary ms-2">成績参照</a>
+            <a href="TestList.action" class="btn btn-primary ms-2">成績参照</a>
         </div>
     </section>
 </c:param>
