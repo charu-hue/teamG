@@ -14,6 +14,7 @@ public class TestListSubject implements Serializable {
         return entYear;
     }
 
+
     public void setEntYear(int entYear) {
         this.entYear = entYear;
     }

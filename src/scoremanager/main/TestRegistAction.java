@@ -37,6 +37,7 @@ public class TestRegistAction extends Action {
         req.setAttribute("classNumList", classNumList);
         req.setAttribute("subjectList", subjectList);
 
+
         String entYearStr = req.getParameter("entYear");
         String classNum = req.getParameter("classNum");
         String subjectCd = req.getParameter("subject");

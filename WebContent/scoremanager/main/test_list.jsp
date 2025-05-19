@@ -59,6 +59,7 @@
             <button type="submit" class="btn btn-secondary" onclick="return handleSubmit()">検索</button>
           </div>
 
+
           <div class="mt-2 text-warning">${errors.get("f1")}</div>
         </div>
       </form>

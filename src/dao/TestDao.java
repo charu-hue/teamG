@@ -14,6 +14,7 @@ import bean.Test;
 
 public class TestDao extends Dao {
 
+
     /**
      * 成績情報の取得（noを条件に含めない・複数回分取得）
      */

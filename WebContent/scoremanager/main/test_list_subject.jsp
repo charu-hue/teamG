@@ -98,6 +98,7 @@
         </table>
       </c:if>
 
+
       <c:if test="${empty students}">
         <div class="text-danger">検索結果はありませんでした。</div>
       </c:if>

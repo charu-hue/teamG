@@ -86,7 +86,6 @@ public class TestListSubjectExecuteAction extends Action {
                 }
                 tls.getPoints().put(String.valueOf(test.getNo()), test.getPoint());
 
-
                 map.put(studentNo, tls);
             }
 

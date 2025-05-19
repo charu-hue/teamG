@@ -16,6 +16,7 @@ public class Test implements Serializable{
 	public String getClassNum() {
 		return classNum;
 	}
+
 	public void setClassNum(String classNum) {
 		this.classNum = classNum;
 	}

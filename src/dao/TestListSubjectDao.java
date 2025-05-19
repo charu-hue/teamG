@@ -53,6 +53,7 @@ public class TestListSubjectDao extends Dao {
 		return new ArrayList<>(map.values());
 	}
 
+
 	public List<TestListSubject> filter(int entYear, String classNum, Subject subject, School school) throws Exception {
 		List<TestListSubject> list = new ArrayList<>();
 		Connection connection = getConnection();
