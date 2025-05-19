@@ -20,7 +20,7 @@
                     <div class="mb-3">
                         <label class="form-label" for="subject-f2-input">科目名</label>
                         <input type="text" class="form-control" id="subject-f2-input"
-                               name="f2" placeholder="科目名を入力してください" required
+                               name="f2" value="${f2}" required
                                value="${subject.name}">
                     </div>
 
