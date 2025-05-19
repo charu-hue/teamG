@@ -15,9 +15,9 @@ import bean.Test;
 public class TestDao extends Dao {
 
     /**
-     * 成績情報の取得（studentテーブルとJOINし、ent_yearで絞り込み）
+     * 成績情報の取得（noを条件に含めない・複数回分取得）
      */
-    public List<Test> filter(int entYear, String classNum, Subject subject, int no, School school) throws Exception {
+    public List<Test> filter(int entYear, String classNum, Subject subject, School school) throws Exception {
         List<Test> list = new ArrayList<>();
         Connection connection = getConnection();
         PreparedStatement ps = null;
@@ -26,15 +26,21 @@ public class TestDao extends Dao {
             String sql = "SELECT t.*, s.ent_year, s.name AS student_name " +
                          "FROM test t " +
                          "JOIN student s ON t.student_no = s.no AND t.school_cd = s.school_cd " +
-                         "WHERE s.ent_year = ? AND t.class_num = ? AND t.subject_cd = ? AND t.no = ? AND t.school_cd = ? " +
-                         "ORDER BY s.no";
+                         "WHERE s.ent_year = ? AND t.class_num = ? AND t.subject_cd = ? AND t.school_cd = ? " +
+                         "ORDER BY s.no, t.no";
+
+            // ログ出力（デバッグ用）
+            System.out.println("【DEBUG】TestDao.filter() 実行（noなし）");
+            System.out.println("  entYear   = " + entYear);
+            System.out.println("  classNum  = " + classNum);
+            System.out.println("  subjectCd = " + subject.getCd());
+            System.out.println("  schoolCd  = " + school.getCd());
 
             ps = connection.prepareStatement(sql);
             ps.setInt(1, entYear);
             ps.setString(2, classNum);
             ps.setString(3, subject.getCd());
-            ps.setInt(4, no);
-            ps.setString(5, school.getCd());
+            ps.setString(4, school.getCd());
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -51,13 +57,17 @@ public class TestDao extends Dao {
                 test.setClassNum(rs.getString("class_num"));
                 test.setSubject(subject);
                 test.setSchool(school);
-                test.setNo(no);
+                test.setNo(rs.getInt("no")); // ← DBから取得
                 test.setPoint(rs.getInt("point"));
 
                 list.add(test);
             }
 
+            System.out.println("【DEBUG】取得件数: " + list.size());
+
         } catch (Exception e) {
+            System.out.println("【ERROR】TestDao.filter() 実行時に例外発生");
+            e.printStackTrace();
             throw e;
         } finally {
             if (ps != null) try { ps.close(); } catch (SQLException e) { throw e; }
@@ -157,7 +167,6 @@ public class TestDao extends Dao {
 
                 list.add(test);
             }
-
 
         } catch (Exception e) {
             throw e;

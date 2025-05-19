@@ -43,7 +43,7 @@ public class TestListSubjectDao extends Dao {
 
 				int testNo = rSet.getInt("test_no");
 				int point = rSet.getInt("point");
-				testList.getPoints().put(testNo, point);
+				testList.getPoints().put(String.valueOf(testNo), point);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
