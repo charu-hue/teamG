@@ -4,6 +4,7 @@
 <c:import url="/common/base.jsp">
 <c:param name="title">
         得点管理システム
+
 </c:param>
 <c:param name="scripts"></c:param>
 <c:param name="content">
