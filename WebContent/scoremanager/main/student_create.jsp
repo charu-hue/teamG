@@ -15,7 +15,7 @@
                         <label class="form-label" for="student-f1-select">入学年度</label>
                         <select class="form-select" id="student-f1-select" name="f1">
                             <option value="0">-------</option>
-                            <c:forEach var="year" items="${entYearList}">
+                            <c:forEach var="year" items="${ent_year_set}">
                                 <option value="${year}" <c:if test="${param.f1 == year}">selected</c:if>>${year}</option>
                             </c:forEach>
                         </select>
@@ -61,6 +61,3 @@
         </section>
     </c:param>
 </c:import>
-
-
-

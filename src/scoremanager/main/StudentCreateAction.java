@@ -15,7 +15,51 @@ import dao.ClassNumDao;
 import tool.Action;
 
 /**
- * 学生登録画面（student_create.jsp）を表示するためのアクション。
+ * 学生登録画面（student_create.jsp）を表示するたpackage scoremanager.main;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import bean.School;
+import bean.Teacher;
+import dao.ClassNumDao;
+import tool.Action;
+
+public class StudentCreateAction extends Action {
+
+    @Override
+    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
+        HttpSession session = req.getSession();
+        Teacher teacher = (Teacher) session.getAttribute("user");
+        School school = teacher.getSchool();
+
+        // 現在の西暦
+        int year = LocalDate.now().getYear();
+
+        // 入学年度候補：現在の年 ±10年
+        List<Integer> entYearList = new ArrayList<>();
+        for (int i = year - 10; i <= year + 9; i++) {
+            entYearList.add(i);
+        }
+
+        // クラス番号取得
+        ClassNumDao cNumDao = new ClassNumDao();
+        List<String> classList = cNumDao.filter(school);
+
+        // リクエストにセット（JSPと一致する属性名に注意！）
+        req.setAttribute("ent_year_set", entYearList);  // ← JSPで使用している名前に合わせる
+        req.setAttribute("class_num_set", classList);
+
+        // JSPにフォワード
+        req.getRequestDispatcher("student_create.jsp").forward(req, res);
+    }
+}
+めのアクション。
  * ログイン中の教員情報を元に、選択可能なクラスや入学年度のリストを作成し、画面に渡す。
  */
 public class StudentCreateAction extends Action {

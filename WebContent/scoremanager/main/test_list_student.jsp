@@ -7,7 +7,7 @@
   <c:param name="scripts"></c:param>
   <c:param name="content">
     <section class="me-4">
-      <h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">成績一覧（学生）</h2>
+      <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">成績一覧（学生）</h2>
 
       <!-- 🔍 検索フォーム -->
       <form method="get" id="search-form">
@@ -61,6 +61,8 @@
           </div>
 
           <div class="mt-2 text-warning">${errors.get("f1")}</div>
+          <div class="mt-2 text-danger">${error}</div>
+          <div class="mt-2 text-info">${message}</div>
         </div>
       </form>
 
@@ -69,27 +71,33 @@
       </p>
 
       <!-- 📊 検索結果 -->
-      <div>件数: ${fn:length(list)}</div>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>科目名</th>
-            <th>科目コード</th>
-            <th>回数</th>
-            <th>点数</th>
-          </tr>
-        </thead>
-        <tbody>
-          <c:forEach var="item" items="${list}">
+      <c:if test="${not empty students}">
+        <div>件数: ${fn:length(students)}</div>
+        <table class="table table-hover">
+          <thead>
             <tr>
-              <td>${item.subjectName}</td>
-              <td>${item.subjectCd}</td>
-              <td>${item.num}</td>
-              <td>${item.point}</td>
+              <th>科目名</th>
+              <th>科目コード</th>
+              <th>回数</th>
+              <th>点数</th>
             </tr>
-          </c:forEach>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <c:forEach var="item" items="${students}">
+              <tr>
+                <td>${item.subjectName}</td>
+                <td>${item.subjectCd}</td>
+                <td>${item.num}</td>
+                <td>${item.point}</td>
+              </tr>
+            </c:forEach>
+          </tbody>
+        </table>
+      </c:if>
+
+      <c:if test="${empty students && empty error && empty message}">
+        <div class="text-muted">成績情報がまだ表示されていません。</div>
+      </c:if>
 
       <script>
         function handleSubmit() {
@@ -112,7 +120,6 @@
             alert("科目情報または学生番号のいずれかを入力してください。");
             return false;
           }
-
 
           return true;
         }
