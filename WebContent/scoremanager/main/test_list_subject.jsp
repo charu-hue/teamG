@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
@@ -69,33 +69,39 @@
       </p>
 
       <!-- 📊 検索結果表示 -->
-      <div>件数: ${fn:length(list)}</div>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>入学年度</th>
-            <th>クラス</th>
-            <th>学生番号</th>
-            <th>氏名</th>
-            <th>1回</th>
-            <th>2回</th>
-            <th>3回</th>
-          </tr>
-        </thead>
-        <tbody>
-          <c:forEach var="item" items="${list}">
+      <c:if test="${not empty students}">
+        <div>件数: ${fn:length(students)}</div>
+        <table class="table table-hover">
+          <thead>
             <tr>
-              <td>${item.entYear}</td>
-              <td>${item.classNum}</td>
-              <td>${item.studentNo}</td>
-              <td>${item.name}</td>
-              <td>${item.points[1]}</td>
-              <td>${item.points[2]}</td>
-              <td>${item.points[3]}</td>
+              <th>入学年度</th>
+              <th>クラス</th>
+              <th>学生番号</th>
+              <th>氏名</th>
+              <th>1回</th>
+              <th>2回</th>
             </tr>
-          </c:forEach>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <c:forEach var="item" items="${students}">
+              <tr>
+                <td>${item.entYear}</td>
+                <td>${item.classNum}</td>
+                <td>${item.studentNo}</td>
+                <td>${item.studentName}</td>
+                <td>${item.points["1"]}</td>
+				<td>${item.points["2"]}</td>
+              </tr>
+
+            </c:forEach>
+          </tbody>
+        </table>
+      </c:if>
+
+
+      <c:if test="${empty students}">
+        <div class="text-danger">検索結果はありませんでした。</div>
+      </c:if>
 
       <!-- 🔁 検索振り分けJS -->
       <script>
@@ -119,7 +125,6 @@
             alert("科目情報または学生番号のいずれかを入力してください。");
             return false;
           }
-
 
           return true;
         }

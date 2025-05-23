@@ -29,8 +29,7 @@ public class TestListSubjectExecuteAction extends Action {
             Teacher teacher = (Teacher) session.getAttribute("user");
             School school = teacher.getSchool();
 
-
-            String f1 = req.getParameter("f1"); // 年度
+            String f1 = req.getParameter("f1"); // 入学年度
             String f2 = req.getParameter("f2"); // クラス
             String f3 = req.getParameter("f3"); // 科目名
             req.setAttribute("f1", f1);
@@ -47,12 +46,13 @@ public class TestListSubjectExecuteAction extends Action {
             String classNum = f2;
             String subjectName = f3;
 
+            // 科目コード取得
             SubjectDao subjectDao = new SubjectDao();
             List<Subject> subjectList = subjectDao.getAll(school);
             Subject subject = subjectList.stream()
-                .filter(s -> s.getName().equals(subjectName))
-                .findFirst()
-                .orElse(null);
+                    .filter(s -> s.getName().equals(subjectName))
+                    .findFirst()
+                    .orElse(null);
 
             if (subject == null) {
                 req.setAttribute("message", "指定された科目が見つかりませんでした。");
@@ -60,23 +60,21 @@ public class TestListSubjectExecuteAction extends Action {
                 return;
             }
 
+            // 成績情報の取得（noは条件に含まない）
             TestDao testDao = new TestDao();
-            List<Test> allTests = new ArrayList<>();
-            int[] testNums = {1, 2, 3}; // 回数は適宜調整
-
-            for (int num : testNums) {
-                allTests.addAll(testDao.filter(entYear, classNum, subject, num, school));
-            }
+            List<Test> allTests = testDao.filter(entYear, classNum, subject, school);
 
             if (allTests.isEmpty()) {
-                req.setAttribute("message", "学生情報が存在しませんでした。");
+                req.setAttribute("message", "成績情報が存在しませんでした。");
                 req.getRequestDispatcher("test_list_subject.jsp").forward(req, res);
                 return;
             }
 
+            // 学生ごとにまとめる
             Map<String, TestListSubject> map = new LinkedHashMap<>();
             for (Test test : allTests) {
                 String studentNo = test.getStudent().getNo();
+
                 TestListSubject tls = map.getOrDefault(studentNo, new TestListSubject());
                 tls.setEntYear(entYear);
                 tls.setStudentNo(studentNo);
@@ -86,7 +84,7 @@ public class TestListSubjectExecuteAction extends Action {
                 if (tls.getPoints() == null) {
                     tls.setPoints(new HashMap<>());
                 }
-                tls.getPoints().put(test.getNo(), test.getPoint());
+                tls.getPoints().put(String.valueOf(test.getNo()), test.getPoint());
 
                 map.put(studentNo, tls);
             }
@@ -96,7 +94,7 @@ public class TestListSubjectExecuteAction extends Action {
 
         } catch (Exception e) {
             e.printStackTrace();
-            req.setAttribute("error", "成績情報取得時にエラーが発生しました");
+            req.setAttribute("error", "成績情報取得時にエラーが発生しました。");
             try {
                 req.getRequestDispatcher("error.jsp").forward(req, res);
             } catch (Exception ex) {

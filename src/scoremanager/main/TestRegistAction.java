@@ -37,6 +37,7 @@ public class TestRegistAction extends Action {
         req.setAttribute("classNumList", classNumList);
         req.setAttribute("subjectList", subjectList);
 
+
         String entYearStr = req.getParameter("entYear");
         String classNum = req.getParameter("classNum");
         String subjectCd = req.getParameter("subject");
@@ -50,14 +51,18 @@ public class TestRegistAction extends Action {
             subject.setCd(subjectCd);
             subject.setSchool(school);
 
+            // 対象の学生一覧（在籍者のみ）
             List<Student> studentList = studentDao.filter(school, entYear, classNum, true);
-            List<Test> existingTests = testDao.filter(entYear, classNum, subject, no, school);
+
+            // 該当科目・クラスの既存の得点情報（noは条件に含まない）
+            List<Test> existingTests = testDao.filter(entYear, classNum, subject, school);
 
             Map<String, Test> testMap = new HashMap<>();
             for (Test t : existingTests) {
                 testMap.put(t.getStudent().getNo(), t);
             }
 
+            // 表示用のTestリスト作成（なければ空のTest）
             List<Test> testList = new ArrayList<>();
             for (Student student : studentList) {
                 Test test = testMap.getOrDefault(student.getNo(), new Test());
@@ -65,7 +70,7 @@ public class TestRegistAction extends Action {
                 test.setClassNum(student.getClassNum());
                 test.setSubject(subject);
                 test.setSchool(school);
-                test.setNo(no);
+                test.setNo(no); // 検索対象の回数をセット
                 testList.add(test);
             }
 
@@ -82,7 +87,6 @@ public class TestRegistAction extends Action {
             req.setAttribute("subjectCd", subjectCd);
             req.setAttribute("no", no);
         }
-
 
         req.getRequestDispatcher("test_regist.jsp").forward(req, res);
     }

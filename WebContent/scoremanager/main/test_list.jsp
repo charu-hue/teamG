@@ -52,12 +52,13 @@
 
           <div class="col-4 mt-3">
             <label class="form-label" for="student-f4-select">学生番号</label>
-            <input type="text" class="form-control" placeholder="学生番号を入力してください" name="f4" value="${no}">
+            <input type="text" class="form-control" placeholder="学生番号を入力してください" name="f4" id="student-f4-input" value="${no}">
           </div>
 
           <div class="col-2 text-center mt-3">
             <button type="submit" class="btn btn-secondary" onclick="return handleSubmit()">検索</button>
           </div>
+
 
           <div class="mt-2 text-warning">${errors.get("f1")}</div>
         </div>
@@ -71,26 +72,38 @@
     <script>
       function handleSubmit() {
         const form = document.getElementById('search-form');
-        const f1 = document.getElementById('student-f1-select').value;
-        const f2 = document.getElementById('student-f2-select').value;
-        const f3 = document.getElementById('student-f3-select').value;
-        const f4 = document.querySelector('input[name="f4"]').value.trim();
+        const f1 = document.getElementById('student-f1-select');
+        const f2 = document.getElementById('student-f2-select');
+        const f3 = document.getElementById('student-f3-select');
+        const f4 = document.getElementById('student-f4-input');
 
-        const hasStudent = f4 !== "";
-        const hasSubject = f1 !== "0" && f2 !== "0" && f3 !== "0";
+        const hasStudent = f4.value.trim() !== "";
+        const hasSubject = f1.value !== "0" && f2.value !== "0" && f3.value !== "0";
+
+        // リセットすべき入力欄を有効に
+        f1.disabled = false;
+        f2.disabled = false;
+        f3.disabled = false;
+        f4.disabled = false;
 
         if (hasStudent && !hasSubject) {
           form.action = "TestListStudentExecute.action";
+          f1.disabled = true;
+          f2.disabled = true;
+          f3.disabled = true;
         } else if (!hasStudent && hasSubject) {
           form.action = "TestListSubjectExecute.action";
+          f4.disabled = true;
         } else if (hasStudent && hasSubject) {
-          // 優先順位：学生検索
+          // 学生番号を優先
           form.action = "TestListStudentExecute.action";
+          f1.disabled = true;
+          f2.disabled = true;
+          f3.disabled = true;
         } else {
           alert("科目情報または学生番号のいずれかを入力してください。");
           return false;
         }
-
 
         return true;
       }
