@@ -6,8 +6,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import bean.Student;
+import bean.Teacher;
 import bean.Test;
 import bean.TestListStudent;
 import dao.StudentDao;
@@ -28,8 +30,11 @@ public class TestListStudentExecuteAction extends Action {
                 return;
             }
 
+            HttpSession session = req.getSession();
+            Teacher teacher = (Teacher) session.getAttribute("user");
+
             StudentDao studentDao = new StudentDao();
-            Student student = studentDao.get(studentNo);
+            Student student = studentDao.get(studentNo, teacher.getSchool());
 
             if (student == null) {
                 req.setAttribute("error", "該当する学生が見つかりません。");
@@ -57,7 +62,6 @@ public class TestListStudentExecuteAction extends Action {
             }
 
             req.getRequestDispatcher("test_list_student.jsp").forward(req, res);
-
 
         } catch (Exception e) {
             e.printStackTrace();

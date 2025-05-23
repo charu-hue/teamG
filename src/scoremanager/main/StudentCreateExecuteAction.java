@@ -1,5 +1,8 @@
 package scoremanager.main;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -10,48 +13,71 @@ import bean.Teacher;
 import dao.StudentDao;
 import tool.Action;
 
-/**
- * 学生登録処理を実行するアクションクラス。
- * フォームから送信された学生情報をデータベースに保存し、完了画面に遷移する。
- */
 public class StudentCreateExecuteAction extends Action {
 
-	@Override
-	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		// セッションからログイン中の教師情報を取得
-		HttpSession session = req.getSession();
-		Teacher teacher = (Teacher)session.getAttribute("user");
+    @Override
+    public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-		// 学生データアクセス用DAOを初期化
-		StudentDao sDao = new StudentDao();
+        HttpSession session = req.getSession();
+        Teacher teacher = (Teacher) session.getAttribute("user");
+        School school = teacher.getSchool();
 
-		// リクエストパラメータ（フォーム入力値）から学生情報を取得
-		int entYear = Integer.parseInt(req.getParameter("f1")); // 入学年度
-		String no = req.getParameter("f2");                     // 学生番号
-		String name = req.getParameter("f3");                   // 氏名
-		String classNum = req.getParameter("f4");               // クラス番号
-		boolean isAttend = true;                                // 登録時は在学中に固定
-		School school = teacher.getSchool();                    // 教師の所属学校を取得
+        // 入力パラメータ取得
+        String f1 = req.getParameter("f1"); // 入学年度
+        String f2 = req.getParameter("f2"); // 学生番号
+        String f3 = req.getParameter("f3"); // 氏名
+        String f4 = req.getParameter("f4"); // クラス
 
-		// デバッグ用出力（後で削除してもOK）
-		System.out.println(no + name + classNum);
+        // 入力値を保持（JSP再表示用）
+        req.setAttribute("no", f2);
+        req.setAttribute("name", f3);
+        req.setAttribute("entYearList", new StudentDao().getEntYearList(school));
+        req.setAttribute("class_num_set", new StudentDao().getClassNumList(school));
 
-		// 学生オブジェクトを生成し、各プロパティに値を設定
-		Student stu = new Student();
-		stu.setNo(no);
-		stu.setName(name);
-		stu.setEntYear(entYear);
-		stu.setClassNum(classNum);
-		stu.setAttend(isAttend);
-		stu.setSchool(school);
+        Map<String, String> errors = new HashMap<>();
 
-		// 学生情報をデータベースに保存
-		boolean save = sDao.save(stu);
+        // バリデーション
+        if (f1 == null || f1.equals("0")) {
+            errors.put("f1", "入学年度を選択してください");
+        }
+        if (f4 == null || f4.equals("0")) {
+            errors.put("f4", "クラスを選択してください");
+        }
+        if (f2 == null || f2.isEmpty()) {
+            errors.put("f2", "学生番号を入力してください");
+        }
+        if (f3 == null || f3.isEmpty()) {
+            errors.put("f3", "氏名を入力してください");
+        }
 
-		// 保存結果をリクエストスコープに格納（確認画面などで使用可能）
-		req.setAttribute("class_num", save); // ★保存成功の可否を返す変数名としては若干わかりにくいかも？
+        // エラーがあればフォームに戻る
+        if (!errors.isEmpty()) {
+            req.setAttribute("errors", errors);
+            req.getRequestDispatcher("student_create.jsp").forward(req, res);
+            return;
+        }
 
-		// 登録完了画面に遷移
-		req.getRequestDispatcher("student_create_done.jsp").forward(req, res);
-	}
+        // 学生オブジェクト生成
+        Student student = new Student();
+        student.setNo(f2);
+        student.setName(f3);
+        student.setEntYear(Integer.parseInt(f1));
+        student.setClassNum(f4);
+        student.setAttend(true);
+        student.setSchool(school);
+
+        // 登録実行（重複チェック付き）
+        StudentDao sDao = new StudentDao();
+        boolean success = sDao.insertIfNotExists(student);
+
+        if (!success) {
+            errors.put("f2", "この学生番号は既に存在しています");
+            req.setAttribute("errors", errors);
+            req.getRequestDispatcher("student_create.jsp").forward(req, res);
+            return;
+        }
+
+        // 正常に登録できたら一覧にリダイレクト
+        res.sendRedirect("StudentList.action");
+    }
 }
