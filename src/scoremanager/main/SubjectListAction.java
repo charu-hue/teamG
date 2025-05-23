@@ -20,20 +20,13 @@ public class SubjectListAction extends Action {
 
     @Override
     public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
-        // セッションからログイン中の教師情報を取得
         HttpSession session = req.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
 
-        // 科目情報のDAOを生成
         SubjectDao sDao = new SubjectDao();
+        List<Subject> subjects = sDao.getAll(teacher.getSchool());
 
-        // 教師が所属する学校に紐づく科目一覧を取得
-        List<Subject> subjects = sDao.filter(teacher.getSchool());
-
-        // 取得した科目一覧をリクエストスコープに格納
         req.setAttribute("subjects", subjects);
-
-        // JSP へフォワード（画面遷移）
         req.getRequestDispatcher("subject_list.jsp").forward(req, res);
     }
 }

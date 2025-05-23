@@ -29,11 +29,11 @@ public class SubjectUpdateExecuteAction extends Action {
         Subject subject = new Subject();
         subject.setCd(cd);
         subject.setName(name);
-        subject.setSchool(teacher.getSchool());  // 教師の所属学校をセット
+        subject.setSchool(teacher.getSchool());
 
-        // DAOを使って科目情報を保存（新規 or 更新）
+        // DAOを使って更新処理を実行
         SubjectDao dao = new SubjectDao();
-        boolean result = dao.save(subject);
+        boolean result = dao.update(subject);  // ← save → update に修正
 
         // 結果をリクエスト属性に設定
         req.setAttribute("update_result", result);
