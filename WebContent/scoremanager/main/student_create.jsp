@@ -20,6 +20,7 @@
                                 <option value="${year}">${year}</option>
                             </c:forEach>
                         </select>
+                        <div class="mt-2 text-warning">${errors.get("f1")}</div>
                     </div>
                     <p></p>
                     <div class="mb-3">
